@@ -112,10 +112,10 @@ export async function getDailyWordsThemes(): Promise<DailyWordsTheme[]> {
 export async function getAdminDailyWordsData() {
   const sql = getSql();
   const themes = (await sql`
-      select id, day, name, icon, description, sort_order
+      select id, day, name, icon, description, generation_prompt, sort_order
       from daily_words_themes
       order by sort_order asc, created_at asc
-    `) as Array<ThemeRow & { sort_order: number }>;
+    `) as Array<ThemeRow & { generation_prompt: string; sort_order: number }>;
   const categories = (await sql`
       select id, theme_id, name, description, sort_order
       from daily_words_categories
@@ -126,6 +126,37 @@ export async function getAdminDailyWordsData() {
       from daily_words_articles
       order by sort_order asc, created_at asc
     `) as Array<ArticleRow & { published: boolean; sort_order: number }>;
+  const sources = (await sql`
+      select id, article_id, title, url, sort_order
+      from daily_words_article_sources
+      order by sort_order asc, created_at asc
+    `) as Array<SourceRow & { sort_order: number }>;
 
-  return { themes, categories, articles };
+  return { themes, categories, articles, sources };
+}
+
+export async function getGenerationContext(categoryId: string) {
+  const sql = getSql();
+  const rows = (await sql`
+    select
+      c.id as category_id,
+      c.name as category_name,
+      c.description as category_description,
+      t.name as theme_name,
+      t.day as theme_day,
+      t.generation_prompt
+    from daily_words_categories c
+    join daily_words_themes t on t.id = c.theme_id
+    where c.id = ${categoryId}
+    limit 1
+  `) as Array<{
+    category_id: string;
+    category_name: string;
+    category_description: string;
+    theme_name: string;
+    theme_day: string;
+    generation_prompt: string;
+  }>;
+
+  return rows[0] ?? null;
 }
