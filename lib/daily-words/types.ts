@@ -8,8 +8,10 @@ export type DailyWordsArticle = {
   id: string;
   title: string;
   lead: string;
+  summary: string;
   body: string[];
   readingMinutes: number;
+  tags: string[];
   sources: DailyWordsSource[];
 };
 

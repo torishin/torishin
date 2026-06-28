@@ -1,690 +1,765 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-  <title>日々の言葉アプリ — 生成・管理・閲覧の図解</title>
-  <style>
-    :root {
-      --bg: #ffffff;
-      --surface: #f8fafc;
-      --surface-2: #f1f5f9;
-      --text: #1e293b;
-      --muted: #64748b;
-      --dim: #94a3b8;
-      --border: #e2e8f0;
-      --accent: #2563eb;
-      --accent-soft: #dbeafe;
-      --success: #047857;
-      --success-soft: #d1fae5;
-      --warning: #b45309;
-      --warning-soft: #fef3c7;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo, sans-serif;
-      line-height: 1.75;
-      border-top: 4px solid var(--accent);
-    }
-
-    .print {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 10px 20px 0;
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .print button {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    main {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 42px 20px 72px;
-    }
-
-    .hero {
-      text-align: center;
-      margin-bottom: 34px;
-    }
-
-    .badge-row {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--muted);
-      padding: 5px 12px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .badge.primary {
-      border-color: var(--accent-soft);
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-
-    h1 {
-      font-size: clamp(28px, 5vw, 42px);
-      line-height: 1.25;
-      letter-spacing: -0.04em;
-      color: #0f172a;
-      margin-bottom: 14px;
-    }
-
-    .lead {
-      max-width: 720px;
-      margin: 0 auto;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin: 28px 0 34px;
-    }
-
-    .stat {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--surface);
-      padding: 18px;
-      text-align: center;
-    }
-
-    .stat strong {
-      display: block;
-      font-size: 28px;
-      line-height: 1;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-
-    .stat span {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    section {
-      margin-top: 34px;
-    }
-
-    h2 {
-      font-size: 22px;
-      color: #0f172a;
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
-    }
-
-    h3 {
-      font-size: 15px;
-      margin-bottom: 8px;
-      color: #0f172a;
-    }
-
-    .overview {
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    .overview-caption {
-      background: var(--surface);
-      color: var(--muted);
-      text-align: center;
-      font-size: 12px;
-      border-bottom: 1px solid var(--border);
-      padding: 12px;
-    }
-
-    .overview-grid {
-      display: grid;
-      grid-template-columns: 1fr 0.85fr 1fr;
-      min-height: 320px;
-    }
-
-    .panel {
-      padding: 26px;
-      background: #fff;
-    }
-
-    .panel.left {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-    }
-
-    .panel.bridge {
-      background: var(--accent-soft);
-      border-right: 1px solid var(--border);
-    }
-
-    .panel.right {
-      background: #fff;
-    }
-
-    .panel-title {
-      font-weight: 800;
-      margin-bottom: 10px;
-      color: #0f172a;
-    }
-
-    .panel p {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 14px;
-    }
-
-    .mini-list {
-      display: grid;
-      gap: 9px;
-      list-style: none;
-    }
-
-    .mini-list li {
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 13px;
-    }
-
-    code {
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: #0f172a;
-      border-radius: 6px;
-      padding: 1px 5px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.92em;
-    }
-
-    .tables {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      font-size: 13px;
-      background: #fff;
-    }
-
-    th,
-    td {
-      text-align: left;
-      padding: 11px 12px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-    }
-
-    th {
-      background: var(--surface);
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 800;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    td:first-child {
-      font-weight: 700;
-      color: #0f172a;
-      white-space: nowrap;
-    }
-
-    .flow {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .step {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #fff;
-      padding: 14px;
-      min-height: 142px;
-    }
-
-    .step-no {
-      display: inline-flex;
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      align-items: center;
-      justify-content: center;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 800;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-
-    .step-title {
-      font-weight: 800;
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
-
-    .step-text {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-    }
-
-    .open-block {
-      padding: 4px 0;
-    }
-
-    .open-head {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .tag {
-      border-radius: 999px;
-      padding: 3px 9px;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .tag.success {
-      background: var(--success-soft);
-      color: var(--success);
-    }
-
-    .tag.warning {
-      background: var(--warning-soft);
-      color: var(--warning);
-    }
-
-    .numbered {
-      list-style: none;
-      display: grid;
-      gap: 10px;
-    }
-
-    .numbered li {
-      display: grid;
-      grid-template-columns: 34px 1fr;
-      gap: 10px;
-      align-items: start;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .numbered span {
-      border-radius: 999px;
-      text-align: center;
-      padding: 3px 0;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .numbered.success span {
-      background: var(--success-soft);
-      color: var(--success);
-    }
-
-    .numbered.warning span {
-      background: var(--warning-soft);
-      color: var(--warning);
-    }
-
-    .ops {
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: var(--surface);
-      padding: 22px;
-    }
-
-    .ops-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 12px;
-    }
-
-    .ops-item {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 15px;
-    }
-
-    .ops-item p {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .footer {
-      margin-top: 36px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      color: var(--dim);
-      font-size: 11px;
-    }
-
-    @media (max-width: 820px) {
-      .stats,
-      .tables,
-      .two-col,
-      .ops-grid {
-        grid-template-columns: 1fr;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="robots"
+      content="noindex, nofollow, noarchive, nosnippet, noimageindex"
+    />
+    <title>日々の言葉アプリ — 生成・管理・閲覧の図解</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --surface: #f8fafc;
+        --surface-2: #f1f5f9;
+        --text: #1e293b;
+        --muted: #64748b;
+        --dim: #94a3b8;
+        --border: #e2e8f0;
+        --accent: #2563eb;
+        --accent-soft: #dbeafe;
+        --success: #047857;
+        --success-soft: #d1fae5;
+        --warning: #b45309;
+        --warning-soft: #fef3c7;
       }
 
-      .overview-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .panel.left,
-      .panel.bridge {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .flow {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media print {
-      .print {
-        display: none;
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
       body {
-        border-top: none;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo,
+          sans-serif;
+        line-height: 1.75;
+        border-top: 4px solid var(--accent);
+      }
+
+      .print {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 10px 20px 0;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .print button {
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 12px;
       }
 
       main {
-        padding-top: 24px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 42px 20px 72px;
       }
 
-      .overview,
-      .step,
-      .ops,
+      .hero {
+        text-align: center;
+        margin-bottom: 34px;
+      }
+
+      .badge-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--muted);
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .badge.primary {
+        border-color: var(--accent-soft);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 42px);
+        line-height: 1.25;
+        letter-spacing: -0.04em;
+        color: #0f172a;
+        margin-bottom: 14px;
+      }
+
+      .lead {
+        max-width: 720px;
+        margin: 0 auto;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 28px 0 34px;
+      }
+
+      .stat {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface);
+        padding: 18px;
+        text-align: center;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 28px;
+        line-height: 1;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      section {
+        margin-top: 34px;
+      }
+
+      h2 {
+        font-size: 22px;
+        color: #0f172a;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+      }
+
+      h3 {
+        font-size: 15px;
+        margin-bottom: 8px;
+        color: #0f172a;
+      }
+
+      .overview {
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        overflow: hidden;
+        background: #fff;
+      }
+
+      .overview-caption {
+        background: var(--surface);
+        color: var(--muted);
+        text-align: center;
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        padding: 12px;
+      }
+
+      .overview-grid {
+        display: grid;
+        grid-template-columns: 1fr 0.85fr 1fr;
+        min-height: 320px;
+      }
+
+      .panel {
+        padding: 26px;
+        background: #fff;
+      }
+
+      .panel.left {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+      }
+
+      .panel.bridge {
+        background: var(--accent-soft);
+        border-right: 1px solid var(--border);
+      }
+
+      .panel.right {
+        background: #fff;
+      }
+
+      .panel-title {
+        font-weight: 800;
+        margin-bottom: 10px;
+        color: #0f172a;
+      }
+
+      .panel p {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+
+      .mini-list {
+        display: grid;
+        gap: 9px;
+        list-style: none;
+      }
+
+      .mini-list li {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      code {
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        color: #0f172a;
+        border-radius: 6px;
+        padding: 1px 5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.92em;
+      }
+
+      .tables {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
       table {
-        break-inside: avoid;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        font-size: 13px;
+        background: #fff;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="print">
-    <button onclick="window.print()">PDF / 印刷</button>
-  </div>
 
-  <main>
-    <header class="hero">
-      <div class="badge-row">
-        <span class="badge primary">図解サマリー</span>
-        <span class="badge">Next.js 16</span>
-        <span class="badge">Neon</span>
-        <span class="badge">Gemini API</span>
-        <span class="badge">Vercel</span>
-      </div>
-      <h1>日々の言葉アプリ<br>生成・管理・閲覧の全体像</h1>
-      <p class="lead">
-        参考資料の「左手＝制度／右手＝実践」の構成を、このアプリでは
-        「管理者が作る側」と「閲覧ユーザーが読む側」に置き換え、
-        中央にGeminiとNeonを橋として配置した説明図です。
-      </p>
-    </header>
+      th,
+      td {
+        text-align: left;
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
 
-    <div class="stats" aria-label="アプリの要点">
-      <div class="stat"><strong>4</strong><span>閲覧ペイン</span></div>
-      <div class="stat"><strong>8</strong><span>主要DBテーブル</span></div>
-      <div class="stat"><strong>3</strong><span>秘密環境変数群</span></div>
-      <div class="stat"><strong>1</strong><span>管理者入口 /admin</span></div>
+      th {
+        background: var(--surface);
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      td:first-child {
+        font-weight: 700;
+        color: #0f172a;
+        white-space: nowrap;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .step {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: #fff;
+        padding: 14px;
+        min-height: 142px;
+      }
+
+      .step-no {
+        display: inline-flex;
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 800;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+
+      .step-title {
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      .step-text {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+      }
+
+      .open-block {
+        padding: 4px 0;
+      }
+
+      .open-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .tag {
+        border-radius: 999px;
+        padding: 3px 9px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .tag.success {
+        background: var(--success-soft);
+        color: var(--success);
+      }
+
+      .tag.warning {
+        background: var(--warning-soft);
+        color: var(--warning);
+      }
+
+      .numbered {
+        list-style: none;
+        display: grid;
+        gap: 10px;
+      }
+
+      .numbered li {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 10px;
+        align-items: start;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .numbered span {
+        border-radius: 999px;
+        text-align: center;
+        padding: 3px 0;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .numbered.success span {
+        background: var(--success-soft);
+        color: var(--success);
+      }
+
+      .numbered.warning span {
+        background: var(--warning-soft);
+        color: var(--warning);
+      }
+
+      .ops {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--surface);
+        padding: 22px;
+      }
+
+      .ops-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 12px;
+      }
+
+      .ops-item {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 15px;
+      }
+
+      .ops-item p {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .footer {
+        margin-top: 36px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        color: var(--dim);
+        font-size: 11px;
+      }
+
+      @media (max-width: 820px) {
+        .stats,
+        .tables,
+        .two-col,
+        .ops-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .overview-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .panel.left,
+        .panel.bridge {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .flow {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        .print {
+          display: none;
+        }
+
+        body {
+          border-top: none;
+        }
+
+        main {
+          padding-top: 24px;
+        }
+
+        .overview,
+        .step,
+        .ops,
+        table {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="print">
+      <button onclick="window.print()">PDF / 印刷</button>
     </div>
 
-    <section class="overview" aria-label="左手と右手で見るアプリ構造">
-      <p class="overview-caption">
-        読み方：左手＝作る側、中央＝生成と保存の橋、右手＝読む側
+    <main>
+      <header class="hero">
+        <div class="badge-row">
+          <span class="badge primary">図解サマリー</span>
+          <span class="badge">Next.js 16</span>
+          <span class="badge">Neon</span>
+          <span class="badge">Gemini API</span>
+          <span class="badge">Vercel</span>
+        </div>
+        <h1>日々の言葉アプリ<br />生成・管理・閲覧の全体像</h1>
+        <p class="lead">
+          参考資料の「左手＝制度／右手＝実践」の構成を、このアプリでは
+          「管理者が作る側」と「閲覧ユーザーが読む側」に置き換え、
+          中央にGeminiとNeonを橋として配置した説明図です。
+        </p>
+      </header>
+
+      <div class="stats" aria-label="アプリの要点">
+        <div class="stat"><strong>4</strong><span>閲覧ペイン</span></div>
+        <div class="stat"><strong>8</strong><span>主要DBテーブル</span></div>
+        <div class="stat"><strong>3</strong><span>秘密環境変数群</span></div>
+        <div class="stat"><strong>1</strong><span>管理者入口 /admin</span></div>
+      </div>
+
+      <section class="overview" aria-label="左手と右手で見るアプリ構造">
+        <p class="overview-caption">
+          読み方：左手＝作る側、中央＝生成と保存の橋、右手＝読む側
+        </p>
+        <div class="overview-grid">
+          <div class="panel left">
+            <div class="panel-title">左手：作る側</div>
+            <p>
+              管理者がログインし、テーマ・カテゴリ・文章・参考リンクを追加、編集、削除します。
+            </p>
+            <ul class="mini-list">
+              <li>入口：<code>/admin/login</code></li>
+              <li>操作：<code>/admin</code> のServer Actions</li>
+              <li>権限：<code>daily_words_sessions</code> で管理者判定</li>
+            </ul>
+          </div>
+
+          <div class="panel bridge">
+            <div class="panel-title">中央の橋：Gemini + Neon</div>
+            <p>Geminiが文章を作り、Neonが正本として保存します。</p>
+            <ul class="mini-list">
+              <li>生成：<code>OPENAI_API_KEY</code></li>
+              <li>保存：<code>DATABASE_URL</code></li>
+              <li>公開：Vercel Environment Variables</li>
+            </ul>
+          </div>
+
+          <div class="panel right">
+            <div class="panel-title">右手：読む側</div>
+            <p>
+              閲覧ユーザーはログイン不要で、DBに保存された文章を4ペインで読みます。
+            </p>
+            <ul class="mini-list">
+              <li>Pane 1：テーマ</li>
+              <li>Pane 2：カテゴリ</li>
+              <li>Pane 3：文章一覧</li>
+              <li>Pane 4：文章詳細・参考リンク</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="tables">
+        <div>
+          <h2>ツールの内容</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>登場するもの</th>
+                <th>役割</th>
+                <th>このアプリでの動き</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>閲覧ユーザー</td>
+                <td>4ペインで読む</td>
+                <td>テーマ、カテゴリ、文章一覧、詳細をDBから表示</td>
+              </tr>
+              <tr>
+                <td>管理者</td>
+                <td>追加・編集・削除</td>
+                <td>テーマ、カテゴリ、文章、参考リンクを管理</td>
+              </tr>
+              <tr>
+                <td>Gemini</td>
+                <td>文章を作る</td>
+                <td>
+                  カテゴリを選ぶと、テーマ別プロンプトから本文と参考リンクを生成
+                </td>
+              </tr>
+              <tr>
+                <td>Neon</td>
+                <td>保存する</td>
+                <td>生成結果と管理データをPostgreSQLに永続化</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <h2>保存先</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>保存する情報</th>
+                <th>保存先</th>
+                <th>具体例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>4ペインの中身</td>
+                <td>Neon PostgreSQL</td>
+                <td>themes / categories / articles / sources</td>
+              </tr>
+              <tr>
+                <td>管理者</td>
+                <td>Neon PostgreSQL</td>
+                <td>users / sessions</td>
+              </tr>
+              <tr>
+                <td>秘密情報</td>
+                <td>.env / Vercel環境変数</td>
+                <td>DATABASE_URL / OPENAI_API_KEY / AI_PROVIDER / ADMIN_*</td>
+              </tr>
+              <tr>
+                <td>コード</td>
+                <td>GitHub</td>
+                <td>Next.js app / admin / lib / migrations</td>
+              </tr>
+              <tr>
+                <td>公開先</td>
+                <td>Vercel</td>
+                <td>mainブランチから自動デプロイ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>生成から閲覧までの流れ</h2>
+        <div class="flow">
+          <div class="step">
+            <div class="step-no">1</div>
+            <div class="step-title">管理者ログイン</div>
+            <p class="step-text">ADMIN_EMAILとパスワードで管理画面へ入る。</p>
+          </div>
+          <div class="step">
+            <div class="step-no">2</div>
+            <div class="step-title">カテゴリ選択</div>
+            <p class="step-text">生成した文章を保存するカテゴリを選ぶ。</p>
+          </div>
+          <div class="step">
+            <div class="step-no">3</div>
+            <div class="step-title">Gemini生成</div>
+            <p class="step-text">
+              テーマ別プロンプトで本文と参考リンクを作る。
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-no">4</div>
+            <div class="step-title">Neon保存</div>
+            <p class="step-text">記事、読了時間、参考リンクをDBへ保存する。</p>
+          </div>
+          <div class="step">
+            <div class="step-no">5</div>
+            <div class="step-title">4ペイン表示</div>
+            <p class="step-text">閲覧画面がDBから読み込み、文章を表示する。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="two-col">
+        <div class="open-block">
+          <div class="open-head">
+            <h2>工夫点</h2>
+            <span class="tag success">5 items</span>
+          </div>
+          <ol class="numbered success">
+            <li>
+              <span>01</span>
+              <p>
+                Gemini APIキーはクライアントへ渡さず、Server
+                Actionの中だけで使用。
+              </p>
+            </li>
+            <li>
+              <span>02</span>
+              <p>
+                テーマごとに生成プロンプトをDB保存し、カテゴリ選択だけで文章生成できる設計。
+              </p>
+            </li>
+            <li>
+              <span>03</span>
+              <p>
+                Geminiが壊れたJSONを返しても、プレーンテキストとして保存できるフォールバックを追加。
+              </p>
+            </li>
+            <li>
+              <span>04</span>
+              <p>
+                Base UIのuncontrolled
+                warningを避けるため、defaultValue変更時にInputを再マウント。
+              </p>
+            </li>
+            <li>
+              <span>05</span>
+              <p>
+                DB変更はmigration化し、Vercelとローカルで同じスキーマへ揃えられる形に整理。
+              </p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="open-block">
+          <div class="open-head">
+            <h2>苦戦した点</h2>
+            <span class="tag warning">5 items</span>
+          </div>
+          <ol class="numbered warning">
+            <li>
+              <span>01</span>
+              <p>
+                GitHub pushはパスワード認証が使えず、token認証が必要だった。
+              </p>
+            </li>
+            <li>
+              <span>02</span>
+              <p>
+                VercelのOutput
+                Directoryがpublicになっており、Next.jsビルド成功後に失敗した。
+              </p>
+            </li>
+            <li>
+              <span>03</span>
+              <p>.envが空だったため、最初はDATABASE_URLを読み込めなかった。</p>
+            </li>
+            <li>
+              <span>04</span>
+              <p>
+                Neon
+                SDKの戻り値型が広く、クエリ結果を明示的に行配列として扱う必要があった。
+              </p>
+            </li>
+            <li>
+              <span>05</span>
+              <p>
+                Geminiの返答が途中で切れたJSONになり、JSON.parseだけでは運用に耐えなかった。
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="ops">
+        <h2>Vercelで忘れやすい設定</h2>
+        <div class="ops-grid">
+          <div class="ops-item">
+            <h3>環境変数</h3>
+            <p>
+              <code>DATABASE_URL</code> と
+              <code>OPENAI_API_KEY</code> は必須。管理者seedを使うなら
+              <code>ADMIN_*</code> も設定します。
+            </p>
+          </div>
+          <div class="ops-item">
+            <h3>DB migration</h3>
+            <p>
+              ローカルでは
+              <code>npm run db:migrate</code>
+              を実行済み。新しいNeon環境では同じmigrationを適用します。
+            </p>
+          </div>
+          <div class="ops-item">
+            <h3>Output Directory</h3>
+            <p>
+              Next.jsとして扱うため、VercelのOutput Directoryは空欄にします。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <p class="footer">
+        Daily Words App Explainer — Next.js / Neon / Gemini / Vercel
       </p>
-      <div class="overview-grid">
-        <div class="panel left">
-          <div class="panel-title">左手：作る側</div>
-          <p>管理者がログインし、テーマ・カテゴリ・文章・参考リンクを追加、編集、削除します。</p>
-          <ul class="mini-list">
-            <li>入口：<code>/admin/login</code></li>
-            <li>操作：<code>/admin</code> のServer Actions</li>
-            <li>権限：<code>daily_words_sessions</code> で管理者判定</li>
-          </ul>
-        </div>
-
-        <div class="panel bridge">
-          <div class="panel-title">中央の橋：Gemini + Neon</div>
-          <p>Geminiが文章を作り、Neonが正本として保存します。</p>
-          <ul class="mini-list">
-            <li>生成：<code>GEMINI_API_KEY</code></li>
-            <li>保存：<code>DATABASE_URL</code></li>
-            <li>公開：Vercel Environment Variables</li>
-          </ul>
-        </div>
-
-        <div class="panel right">
-          <div class="panel-title">右手：読む側</div>
-          <p>閲覧ユーザーはログイン不要で、DBに保存された文章を4ペインで読みます。</p>
-          <ul class="mini-list">
-            <li>Pane 1：テーマ</li>
-            <li>Pane 2：カテゴリ</li>
-            <li>Pane 3：文章一覧</li>
-            <li>Pane 4：文章詳細・参考リンク</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="tables">
-      <div>
-        <h2>ツールの内容</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>登場するもの</th>
-              <th>役割</th>
-              <th>このアプリでの動き</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>閲覧ユーザー</td>
-              <td>4ペインで読む</td>
-              <td>テーマ、カテゴリ、文章一覧、詳細をDBから表示</td>
-            </tr>
-            <tr>
-              <td>管理者</td>
-              <td>追加・編集・削除</td>
-              <td>テーマ、カテゴリ、文章、参考リンクを管理</td>
-            </tr>
-            <tr>
-              <td>Gemini</td>
-              <td>文章を作る</td>
-              <td>カテゴリを選ぶと、テーマ別プロンプトから本文と参考リンクを生成</td>
-            </tr>
-            <tr>
-              <td>Neon</td>
-              <td>保存する</td>
-              <td>生成結果と管理データをPostgreSQLに永続化</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div>
-        <h2>保存先</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>保存する情報</th>
-              <th>保存先</th>
-              <th>具体例</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>4ペインの中身</td>
-              <td>Neon PostgreSQL</td>
-              <td>themes / categories / articles / sources</td>
-            </tr>
-            <tr>
-              <td>管理者</td>
-              <td>Neon PostgreSQL</td>
-              <td>users / sessions</td>
-            </tr>
-            <tr>
-              <td>秘密情報</td>
-              <td>.env / Vercel環境変数</td>
-              <td>DATABASE_URL / GEMINI_API_KEY / ADMIN_*</td>
-            </tr>
-            <tr>
-              <td>コード</td>
-              <td>GitHub</td>
-              <td>Next.js app / admin / lib / migrations</td>
-            </tr>
-            <tr>
-              <td>公開先</td>
-              <td>Vercel</td>
-              <td>mainブランチから自動デプロイ</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section>
-      <h2>生成から閲覧までの流れ</h2>
-      <div class="flow">
-        <div class="step">
-          <div class="step-no">1</div>
-          <div class="step-title">管理者ログイン</div>
-          <p class="step-text">ADMIN_EMAILとパスワードで管理画面へ入る。</p>
-        </div>
-        <div class="step">
-          <div class="step-no">2</div>
-          <div class="step-title">カテゴリ選択</div>
-          <p class="step-text">生成した文章を保存するカテゴリを選ぶ。</p>
-        </div>
-        <div class="step">
-          <div class="step-no">3</div>
-          <div class="step-title">Gemini生成</div>
-          <p class="step-text">テーマ別プロンプトで本文と参考リンクを作る。</p>
-        </div>
-        <div class="step">
-          <div class="step-no">4</div>
-          <div class="step-title">Neon保存</div>
-          <p class="step-text">記事、読了時間、参考リンクをDBへ保存する。</p>
-        </div>
-        <div class="step">
-          <div class="step-no">5</div>
-          <div class="step-title">4ペイン表示</div>
-          <p class="step-text">閲覧画面がDBから読み込み、文章を表示する。</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="two-col">
-      <div class="open-block">
-        <div class="open-head">
-          <h2>工夫点</h2>
-          <span class="tag success">5 items</span>
-        </div>
-        <ol class="numbered success">
-          <li><span>01</span><p>Gemini APIキーはクライアントへ渡さず、Server Actionの中だけで使用。</p></li>
-          <li><span>02</span><p>テーマごとに生成プロンプトをDB保存し、カテゴリ選択だけで文章生成できる設計。</p></li>
-          <li><span>03</span><p>Geminiが壊れたJSONを返しても、プレーンテキストとして保存できるフォールバックを追加。</p></li>
-          <li><span>04</span><p>Base UIのuncontrolled warningを避けるため、defaultValue変更時にInputを再マウント。</p></li>
-          <li><span>05</span><p>DB変更はmigration化し、Vercelとローカルで同じスキーマへ揃えられる形に整理。</p></li>
-        </ol>
-      </div>
-
-      <div class="open-block">
-        <div class="open-head">
-          <h2>苦戦した点</h2>
-          <span class="tag warning">5 items</span>
-        </div>
-        <ol class="numbered warning">
-          <li><span>01</span><p>GitHub pushはパスワード認証が使えず、token認証が必要だった。</p></li>
-          <li><span>02</span><p>VercelのOutput Directoryがpublicになっており、Next.jsビルド成功後に失敗した。</p></li>
-          <li><span>03</span><p>.envが空だったため、最初はDATABASE_URLを読み込めなかった。</p></li>
-          <li><span>04</span><p>Neon SDKの戻り値型が広く、クエリ結果を明示的に行配列として扱う必要があった。</p></li>
-          <li><span>05</span><p>Geminiの返答が途中で切れたJSONになり、JSON.parseだけでは運用に耐えなかった。</p></li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="ops">
-      <h2>Vercelで忘れやすい設定</h2>
-      <div class="ops-grid">
-        <div class="ops-item">
-          <h3>環境変数</h3>
-          <p><code>DATABASE_URL</code> と <code>GEMINI_API_KEY</code> は必須。管理者seedを使うなら <code>ADMIN_*</code> も設定します。</p>
-        </div>
-        <div class="ops-item">
-          <h3>DB migration</h3>
-          <p>ローカルでは <code>npm run db:migrate</code> を実行済み。新しいNeon環境では同じmigrationを適用します。</p>
-        </div>
-        <div class="ops-item">
-          <h3>Output Directory</h3>
-          <p>Next.jsとして扱うため、VercelのOutput Directoryは空欄にします。</p>
-        </div>
-      </div>
-    </section>
-
-    <p class="footer">
-      Daily Words App Explainer — Next.js / Neon / Gemini / Vercel
-    </p>
-  </main>
-</body>
+    </main>
+  </body>
 </html>

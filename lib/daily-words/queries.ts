@@ -21,8 +21,10 @@ type ArticleRow = {
   category_id: string;
   title: string;
   lead: string;
+  summary: string;
   body: string;
   reading_minutes: number;
+  tags: string[];
 };
 
 type SourceRow = {
@@ -45,7 +47,7 @@ export async function getDailyWordsThemes(): Promise<DailyWordsTheme[]> {
       order by sort_order asc, created_at asc
     `) as CategoryRow[];
   const articles = (await sql`
-      select id, category_id, title, lead, body, reading_minutes
+      select id, category_id, title, lead, summary, body, reading_minutes, tags
       from daily_words_articles
       where published = true
       order by sort_order asc, created_at asc
@@ -73,11 +75,13 @@ export async function getDailyWordsThemes(): Promise<DailyWordsTheme[]> {
       id: article.id,
       title: article.title,
       lead: article.lead,
+      summary: article.summary || article.lead.slice(0, 60),
       body: article.body
         .split(/\n{2,}/)
         .map((paragraph) => paragraph.trim())
         .filter(Boolean),
       readingMinutes: article.reading_minutes,
+      tags: article.tags ?? [],
       sources: (sourcesByArticle.get(article.id) ?? []).map((source) => ({
         id: source.id,
         title: source.title,
@@ -122,7 +126,7 @@ export async function getAdminDailyWordsData() {
       order by sort_order asc, created_at asc
     `) as Array<CategoryRow & { sort_order: number }>;
   const articles = (await sql`
-      select id, category_id, title, lead, body, reading_minutes, published, sort_order
+      select id, category_id, title, lead, summary, body, reading_minutes, tags, published, sort_order
       from daily_words_articles
       order by sort_order asc, created_at asc
     `) as Array<ArticleRow & { published: boolean; sort_order: number }>;
@@ -135,28 +139,54 @@ export async function getAdminDailyWordsData() {
   return { themes, categories, articles, sources };
 }
 
-export async function getGenerationContext(categoryId: string) {
+export async function getThemeForGeneration(themeId: string) {
   const sql = getSql();
   const rows = (await sql`
     select
-      c.id as category_id,
-      c.name as category_name,
-      c.description as category_description,
-      t.name as theme_name,
-      t.day as theme_day,
-      t.generation_prompt
-    from daily_words_categories c
-    join daily_words_themes t on t.id = c.theme_id
-    where c.id = ${categoryId}
+      id,
+      day,
+      name,
+      icon,
+      description,
+      generation_prompt
+    from daily_words_themes
+    where id = ${themeId}
     limit 1
   `) as Array<{
-    category_id: string;
-    category_name: string;
-    category_description: string;
-    theme_name: string;
-    theme_day: string;
+    id: string;
+    day: string;
+    name: string;
+    icon: string;
+    description: string;
     generation_prompt: string;
   }>;
 
   return rows[0] ?? null;
+}
+
+export async function getThemeArticleMemory(themeId: string, limit = 24) {
+  const sql = getSql();
+  return (await sql`
+    select
+      c.name as category_name,
+      a.title,
+      a.summary,
+      a.lead,
+      left(a.body, 1200) as body_excerpt,
+      a.tags,
+      a.created_at
+    from daily_words_articles a
+    join daily_words_categories c on c.id = a.category_id
+    where c.theme_id = ${themeId}
+    order by a.created_at desc
+    limit ${limit}
+  `) as Array<{
+    category_name: string;
+    title: string;
+    summary: string;
+    lead: string;
+    body_excerpt: string;
+    tags: string[];
+    created_at: string;
+  }>;
 }

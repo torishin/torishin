@@ -180,7 +180,7 @@ export function DailyWordsApp({ themes }: { themes: DailyWordsTheme[] }) {
                     {article.title}
                   </span>
                   <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                    {article.lead}
+                    {article.summary || article.lead}
                   </span>
                   <span className="mt-3 block text-[11px] text-muted-foreground">
                     約 {article.readingMinutes} 分で読めます

@@ -73,6 +73,40 @@ export async function createCategory(input: {
   `;
 }
 
+export async function findOrCreateCategory(input: {
+  themeId: string;
+  name: string;
+  description: string;
+}) {
+  const sql = getSql();
+  const existing = (await sql`
+    select id
+    from daily_words_categories
+    where theme_id = ${input.themeId}
+      and name = ${input.name}
+    limit 1
+  `) as Array<{ id: string }>;
+
+  if (existing[0]) return existing[0].id;
+
+  const rows = (await sql`
+    insert into daily_words_categories (theme_id, name, description, sort_order)
+    values (
+      ${input.themeId},
+      ${input.name},
+      ${input.description},
+      (
+        select coalesce(max(sort_order), -1) + 1
+        from daily_words_categories
+        where theme_id = ${input.themeId}
+      )
+    )
+    returning id
+  `) as Array<{ id: string }>;
+
+  return rows[0]?.id ?? "";
+}
+
 export async function updateCategory(input: {
   id: string;
   themeId: string;
@@ -104,9 +138,12 @@ export async function createArticle(input: {
   categoryId: string;
   title: string;
   lead: string;
+  summary?: string;
   body: string;
   readingMinutes: number;
   sortOrder: number;
+  tags?: string[];
+  published?: boolean;
 }) {
   const sql = getSql();
   const rows = await sql`
@@ -114,17 +151,23 @@ export async function createArticle(input: {
       category_id,
       title,
       lead,
+      summary,
       body,
       reading_minutes,
-      sort_order
+      sort_order,
+      tags,
+      published
     )
     values (
       ${input.categoryId},
       ${input.title},
       ${input.lead},
+      ${input.summary ?? input.lead.slice(0, 60)},
       ${input.body},
       ${input.readingMinutes},
-      ${input.sortOrder}
+      ${input.sortOrder},
+      ${input.tags ?? []},
+      ${input.published ?? true}
     )
     returning id
   `;
@@ -147,6 +190,7 @@ export async function updateArticle(input: {
     set category_id = ${input.categoryId},
       title = ${input.title},
       lead = ${input.lead},
+      summary = ${input.lead.slice(0, 60)},
       body = ${input.body},
       reading_minutes = ${input.readingMinutes},
       sort_order = ${input.sortOrder},
