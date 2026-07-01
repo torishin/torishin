@@ -125,6 +125,7 @@ function buildPrompt(input: ArticleGenerationInput, avoidInstruction: string) {
     "## 今回のテーマ",
     `テーマ名: ${input.themeName}`,
     `テーマ説明: ${input.themeDescription || "未設定"}`,
+    `アクセス年月日: ${formatAccessDate(new Date())}`,
     "",
     "## 過去記事リスト",
     pastArticles.length > 0
@@ -137,7 +138,13 @@ function buildPrompt(input: ArticleGenerationInput, avoidInstruction: string) {
     "本文は1000〜1500文字程度にしてください。",
     "リード文は約100文字、summaryは約60文字にしてください。",
     "読了時間は返さなくて構いません。保存時に自動計算します。",
+    "外部資料を引用・参照する場合は、bodyの本文中に著者姓・年・頁またはWeb出典を示し、bodyの末尾に「引用・参考文献」を含めてください。",
+    "ページ番号が確認できない資料は直接引用せず、電子メディア情報としてURLとアクセス年月日を記載してください。",
   ].join("\n");
+}
+
+function formatAccessDate(date: Date) {
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 }
 
 function parseDraft(text: string) {
